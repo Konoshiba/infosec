@@ -181,4 +181,6 @@ src/
 4. ✅ Аутентификация на основе JWT токенов
 5. ✅ Защищенные endpoints требуют аутентификации
 6. ✅ Stateless управление сессиями
-
+## Скриншоты отчетов SAST/SCA из раздела "Actions"
+![отчёт](images/dep-check.png)
+![отчёт](images/reports.png)
