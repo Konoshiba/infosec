@@ -1,5 +1,7 @@
 package com.infosec.dto;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class DataResponse {
@@ -12,8 +14,8 @@ public class DataResponse {
 
     public DataResponse(String message, List<UserResponse> users) {
         this.message = message;
-        this.users = users;
-        this.totalCount = users != null ? users.size() : 0;
+        this.users = users != null ? new ArrayList<>(users) : Collections.emptyList();
+        this.totalCount = this.users.size();
     }
 
     public String getMessage() {
@@ -25,11 +27,11 @@ public class DataResponse {
     }
 
     public List<UserResponse> getUsers() {
-        return users;
+        return Collections.unmodifiableList(users);
     }
 
     public void setUsers(List<UserResponse> users) {
-        this.users = users;
+        this.users = users != null ? new ArrayList<>(users) : Collections.emptyList();
     }
 
     public int getTotalCount() {
@@ -40,4 +42,3 @@ public class DataResponse {
         this.totalCount = totalCount;
     }
 }
-

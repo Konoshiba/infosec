@@ -24,11 +24,11 @@ public class AuthService {
     public LoginResponse authenticate(LoginRequest loginRequest) {
         // Find user by username (uses parameterized query - SQL injection safe)
         User user = userRepository.findByUsername(loginRequest.getUsername())
-                .orElseThrow(() -> new RuntimeException("Invalid username or password"));
+                .orElseThrow(() -> new IllegalArgumentException("Invalid username or password"));
 
         // Verify password using bcrypt
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid username or password");
+            throw new IllegalArgumentException("Invalid username or password");
         }
 
         // Generate JWT token
@@ -37,4 +37,3 @@ public class AuthService {
         return new LoginResponse(token, user.getUsername());
     }
 }
-

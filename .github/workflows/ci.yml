@@ -22,13 +22,6 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
-    # Явно пробрасываем JAVA_HOME, чтобы избежать ошибок при вызове java
-    - name: Export JAVA_HOME
-      run: |
-        echo "JAVA_HOME=${{ env.JAVA_HOME_17_X64 }}" >> $GITHUB_ENV
-        echo "${{ env.JAVA_HOME_17_X64 }}/bin" >> $GITHUB_PATH
-        java -version
-        
     - name: Cache Maven dependencies
       uses: actions/cache@v4
       with:
@@ -36,23 +29,17 @@ jobs:
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
         
-    # SCA: OWASP Dependency-Check для проверки зависимостей на уязвимости
-    - name: Run OWASP Dependency-Check
-      uses: dependency-check/Dependency-Check_Action@main
-      continue-on-error: true
-      env:
-        DC_NVD_API_KEY: ${{ secrets.NVD_API_KEY }} # Рекомендуется задать секрет NVD_API_KEY
-      with:
-        project: 'infosec-api'
-        path: '.'
-        format: 'ALL'
-        out: 'reports'
-        args: >
-          --enableRetired
-          --enableExperimental
-          --failOnCVSS 7
-          --suppression dependency-check-suppressions.xml
-          --nvdApiKey ${{ secrets.NVD_API_KEY }}
+    - name: Run OWASP Dependency-Check with Maven
+        run: |
+          mvn org.owasp:dependency-check-maven:check \
+            -Dnvd.api.key=${{ secrets.NVD_API_KEY }} \
+            -Ddependency-check.failBuildOnCVSS=7 \
+            -Ddependency-check.enableRetired=true \
+            -Ddependency-check.enableExperimental=true \
+            -Ddependency-check.suppressionFile=dependency-check-suppressions.xml \
+            -Ddependency-check.outputDirectory=reports \
+            -Ddependency-check.formats=HTML,XML,JSON,CSV
+        continue-on-error: true
 
     - name: Upload Dependency-Check reports
       uses: actions/upload-artifact@v4

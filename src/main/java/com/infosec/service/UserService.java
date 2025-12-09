@@ -22,7 +22,7 @@ public class UserService {
     public UserResponse getUserById(Long id) {
         // Spring Data JPA uses parameterized queries automatically
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         // Sanitize user data before returning to prevent XSS
         return new UserResponse(
@@ -48,4 +48,3 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 }
-
