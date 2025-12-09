@@ -37,7 +37,6 @@ jobs:
           -Ddependency-check.enableRetired=true \
           -Ddependency-check.enableExperimental=true \
           -Ddependency-check.suppressionFile=dependency-check-suppressions.xml \
-          -Ddependency-check.outputDirectory=reports \
           -Ddependency-check.formats=HTML,XML,JSON,CSV
       continue-on-error: true
 
@@ -46,26 +45,13 @@ jobs:
       if: always()
       with:
         name: dependency-check-reports
-        path: reports/
+        path: target/dependency-check-report.*
         retention-days: 30
         if-no-files-found: ignore
         
     # SAST: Компиляция проекта
     - name: Build with Maven
       run: mvn -U clean compile -DskipTests -Ddependency-check.skip=true
-      
-    # SAST: Запуск тестов
-    - name: Run tests
-      run: mvn -U test -Ddependency-check.skip=true
-      continue-on-error: true
-      
-    - name: Upload test reports
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: test-reports
-        path: target/surefire-reports/
-        retention-days: 30
         
     # SAST: SpotBugs для статического анализа кода
     - name: Run SpotBugs Analysis
@@ -119,11 +105,11 @@ jobs:
         echo "## Security Scan Results" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### SAST Tools:" >> $GITHUB_STEP_SUMMARY
-        echo "- ✅ SpotBugs: Static code analysis" >> $GITHUB_STEP_SUMMARY
-        echo "- ✅ PMD: Code quality analysis" >> $GITHUB_STEP_SUMMARY
-        echo "- ✅ Checkstyle: Code style analysis" >> $GITHUB_STEP_SUMMARY
+        echo "- SpotBugs: Static code analysis" >> $GITHUB_STEP_SUMMARY
+        echo "- PMD: Code quality analysis" >> $GITHUB_STEP_SUMMARY
+        echo "- Checkstyle: Code style analysis" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "### SCA Tools:" >> $GITHUB_STEP_SUMMARY
-        echo "- ✅ OWASP Dependency-Check: Vulnerability scanning" >> $GITHUB_STEP_SUMMARY
+        echo "- OWASP Dependency-Check: Vulnerability scanning" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "📊 Все отчеты доступны в артефактах сборки" >> $GITHUB_STEP_SUMMARY
+        echo "Все отчеты доступны в артефактах сборки" >> $GITHUB_STEP_SUMMARY

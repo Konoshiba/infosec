@@ -1,21 +1,21 @@
-# Secure Web API Application
+# Безопасное веб-приложение API
 
-A secure Spring Boot REST API application with JWT authentication, PostgreSQL database, and protection against common security vulnerabilities.
+Безопасное REST API приложение на Spring Boot с JWT аутентификацией, базой данных PostgreSQL и защитой от распространенных уязвимостей безопасности.
 
-## Features
+## Возможности
 
-- **JWT Authentication**: Secure token-based authentication
-- **Password Hashing**: BCrypt password encryption
-- **SQL Injection Protection**: Parameterized queries via Spring Data JPA
-- **XSS Protection**: Input sanitization for all user data
-- **PostgreSQL Database**: Persistent data storage
+- **JWT аутентификация**: Безопасная токен-based аутентификация
+- **Хеширование паролей**: Шифрование паролей с помощью BCrypt
+- **Защита от SQL-инъекций**: Параметризованные запросы через Spring Data JPA
+- **Защита от XSS**: Санитизация всех пользовательских данных
+- **База данных PostgreSQL**: Постоянное хранение данных
 
 ## API Endpoints
 
 ### 1. POST /auth/login
-Authenticates a user and returns a JWT token.
+Аутентифицирует пользователя и возвращает JWT токен.
 
-**Request Body:**
+**Тело запроса:**
 ```json
 {
   "username": "user123",
@@ -23,7 +23,7 @@ Authenticates a user and returns a JWT token.
 }
 ```
 
-**Response:**
+**Ответ:**
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -33,14 +33,14 @@ Authenticates a user and returns a JWT token.
 ```
 
 ### 2. GET /api/data
-Returns a list of users. Requires authentication.
+Возвращает список пользователей. Требуется аутентификация.
 
-**Headers:**
+**Заголовки:**
 ```
 Authorization: Bearer <token>
 ```
 
-**Response:**
+**Ответ:**
 ```json
 {
   "message": "List of users retrieved successfully",
@@ -57,14 +57,14 @@ Authorization: Bearer <token>
 ```
 
 ### 3. GET /users/{id}
-Returns a specific user by ID. Requires authentication.
+Возвращает конкретного пользователя по ID. Требуется аутентификация.
 
-**Headers:**
+**Заголовки:**
 ```
 Authorization: Bearer <token>
 ```
 
-**Response:**
+**Ответ:**
 ```json
 {
   "id": 1,
@@ -74,69 +74,69 @@ Authorization: Bearer <token>
 }
 ```
 
-## Security Features
+## Функции безопасности
 
-### SQL Injection Protection
-- All database queries use Spring Data JPA with parameterized queries
-- No string concatenation for SQL queries
-- Prepared statements are used automatically
+### Защита от SQL-инъекций
+- Все запросы к базе данных используют Spring Data JPA с параметризованными запросами
+- Отсутствует конкатенация строк для SQL запросов
+- Подготовленные выражения (prepared statements) используются автоматически
 
-### XSS Protection
-- All user input is sanitized using Apache Commons Text
-- HTML entities are escaped in responses
-- JSON responses are sanitized
+### Защита от XSS
+- Все пользовательские данные санитизируются с помощью Apache Commons Text
+- HTML сущности экранируются в ответах
+- JSON ответы санитизируются
 
-### Authentication Security
-- Passwords are hashed using BCrypt
-- JWT tokens are used for stateless authentication
-- Tokens expire after 24 hours (configurable)
-- Protected endpoints require valid JWT token
+### Безопасность аутентификации
+- Пароли хешируются с использованием BCrypt
+- JWT токены используются для stateless аутентификации
+- Токены истекают через 24 часа (настраивается)
+- Защищенные endpoints требуют валидный JWT токен
 
-## Setup Instructions
+## Инструкции по настройке
 
-### Prerequisites
-- Java 17 or higher
+### Предварительные требования
+- Java 17 или выше
 - Maven 3.6+
 - PostgreSQL 12+
 
-### Database Setup
-1. Create a PostgreSQL database:
+### Настройка базы данных
+1. Создайте базу данных PostgreSQL:
 ```sql
 CREATE DATABASE infosec_db;
 ```
 
-2. Update `src/main/resources/application.properties` with your database credentials:
+2. Обновите `src/main/resources/application.properties` вашими учетными данными базы данных:
 ```properties
 spring.datasource.url=jdbc:postgresql://localhost:5432/infosec_db
 spring.datasource.username=your_username
 spring.datasource.password=your_password
 ```
 
-### Running the Application
-1. Build the project:
+### Запуск приложения
+1. Соберите проект:
 ```bash
 mvn clean install
 ```
 
-2. Run the application:
+2. Запустите приложение:
 ```bash
 mvn spring-boot:run
 ```
 
-The API will be available at `http://localhost:8080`
+API будет доступно по адресу `http://localhost:8080`
 
-## Testing the API
+## Тестирование API
 
-### 1. Create a test user (you can use a database client or add a data initializer)
+### 1. Создайте тестового пользователя (можете использовать клиент базы данных или добавить инициализатор данных)
 
-### 2. Login to get a token:
+### 2. Войдите, чтобы получить токен:
 ```bash
 curl -X POST http://localhost:8080/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username":"testuser","password":"testpass"}'
 ```
 
-### 3. Use the token to access protected endpoints:
+### 3. Используйте токен для доступа к защищенным endpoints:
 ```bash
 curl -X GET http://localhost:8080/api/data \
   -H "Authorization: Bearer <your_token>"
@@ -147,38 +147,38 @@ curl -X GET http://localhost:8080/users/1 \
   -H "Authorization: Bearer <your_token>"
 ```
 
-## Project Structure
+## Структура проекта
 
 ```
 src/
 ├── main/
 │   ├── java/com/infosec/
-│   │   ├── controller/     # REST controllers
-│   │   ├── service/        # Business logic
-│   │   ├── repository/     # Data access layer
-│   │   ├── entity/         # JPA entities
-│   │   ├── dto/            # Data transfer objects
-│   │   ├── security/       # Security configuration
-│   │   ├── util/           # Utility classes (JWT, XSS)
-│   │   └── exception/      # Exception handlers
+│   │   ├── controller/     # REST контроллеры
+│   │   ├── service/        # Бизнес-логика
+│   │   ├── repository/     # Слой доступа к данным
+│   │   ├── entity/         # JPA сущности
+│   │   ├── dto/            # Объекты передачи данных
+│   │   ├── security/       # Конфигурация безопасности
+│   │   ├── util/           # Утилитные классы (JWT, XSS)
+│   │   └── exception/      # Обработчики исключений
 │   └── resources/
 │       └── application.properties
 └── pom.xml
 ```
 
-## Configuration
+## Конфигурация
 
-Key configuration options in `application.properties`:
-- `jwt.secret`: Secret key for JWT signing (change in production!)
-- `jwt.expiration`: Token expiration time in milliseconds (default: 86400000 = 24 hours)
-- Database connection settings
+Основные параметры конфигурации в `application.properties`:
+- `jwt.secret`: Секретный ключ для подписи JWT (измените в production!)
+- `jwt.expiration`: Время истечения токена в миллисекундах (по умолчанию: 86400000 = 24 часа)
+- Настройки подключения к базе данных
 
-## Security Best Practices Implemented
+## Реализованные лучшие практики безопасности
 
-1. ✅ Parameterized queries (SQL injection protection)
-2. ✅ Input sanitization (XSS protection)
-3. ✅ Password hashing with BCrypt
-4. ✅ JWT token-based authentication
-5. ✅ Protected endpoints require authentication
-6. ✅ Stateless session management
+1. ✅ Параметризованные запросы (защита от SQL-инъекций)
+2. ✅ Санитизация входных данных (защита от XSS)
+3. ✅ Хеширование паролей с помощью BCrypt
+4. ✅ Аутентификация на основе JWT токенов
+5. ✅ Защищенные endpoints требуют аутентификации
+6. ✅ Stateless управление сессиями
 
