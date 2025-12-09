@@ -30,46 +30,28 @@ jobs:
         restore-keys: ${{ runner.os }}-m2
         
     # SCA: OWASP Dependency-Check для проверки зависимостей на уязвимости
-    - name: Run OWASP Dependency-Check (Maven Plugin)
-      run: |
-        mvn org.owasp:dependency-check-maven:check
+    - name: Run OWASP Dependency-Check
+      uses: dependency-check/Dependency-Check_Action@main
       continue-on-error: true
-      
-    - name: Upload Dependency-Check reports (Maven)
+      with:
+        project: 'infosec-api'
+        path: '.'
+        format: 'ALL'
+        out: 'reports'
+        args: >
+          --enableRetired
+          --enableExperimental
+          --failOnCVSS 7
+          --suppression dependency-check-suppressions.xml
+
+    - name: Upload Dependency-Check reports
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: dependency-check-maven-reports
-        path: target/dependency-check-report.*
-        retention-days: 30
-        
-    # SCA: OWASP Dependency-Check Standalone (более полный анализ)
-    - name: Download OWASP Dependency-Check
-      run: |
-        wget -q https://github.com/jeremylong/DependencyCheck/releases/latest/download/dependency-check-9.0.9-release.zip -O /tmp/dependency-check.zip
-        unzip -q /tmp/dependency-check.zip -d /tmp/
-        chmod +x /tmp/dependency-check/bin/dependency-check.sh
-        
-    - name: Run OWASP Dependency-Check (Standalone)
-      run: |
-        /tmp/dependency-check/bin/dependency-check.sh \
-          --project "Secure-API" \
-          --scan "." \
-          --format "ALL" \
-          --out "reports" \
-          --enableRetired \
-          --enableExperimental \
-          --failOnCVSS 7 \
-          --suppression "dependency-check-suppressions.xml" || true
-      continue-on-error: true
-          
-    - name: Upload Dependency-Check reports (Standalone)
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: dependency-check-standalone-reports
+        name: dependency-check-reports
         path: reports/
         retention-days: 30
+        if-no-files-found: ignore
         
     # SAST: Компиляция проекта
     - name: Build with Maven
