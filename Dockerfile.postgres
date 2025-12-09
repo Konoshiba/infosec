@@ -1,0 +1,19 @@
+# Dockerfile для PostgreSQL базы данных
+# Альтернативный вариант, если нужна кастомная конфигурация PostgreSQL
+
+FROM postgres:15-alpine
+
+# Копируем скрипт инициализации
+COPY init-db.sql /docker-entrypoint-initdb.d/
+
+# Настройки PostgreSQL (опционально)
+ENV POSTGRES_DB=infosec_db
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_PASSWORD=postgres
+
+# Открываем порт PostgreSQL
+EXPOSE 5432
+
+# Используем стандартную команду запуска PostgreSQL
+CMD ["postgres"]
+

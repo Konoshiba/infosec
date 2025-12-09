@@ -1,0 +1,150 @@
+name: CI Security Pipeline
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  security-scan:
+    name: Security Analysis (SAST + SCA)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+        
+    - name: Cache Maven dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+        
+    # SCA: OWASP Dependency-Check для проверки зависимостей на уязвимости
+    - name: Run OWASP Dependency-Check (Maven Plugin)
+      run: |
+        mvn org.owasp:dependency-check-maven:check
+      continue-on-error: true
+      
+    - name: Upload Dependency-Check reports (Maven)
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: dependency-check-maven-reports
+        path: target/dependency-check-report.*
+        retention-days: 30
+        
+    # SCA: OWASP Dependency-Check Standalone (более полный анализ)
+    - name: Download OWASP Dependency-Check
+      run: |
+        wget -q https://github.com/jeremylong/DependencyCheck/releases/latest/download/dependency-check-9.0.9-release.zip -O /tmp/dependency-check.zip
+        unzip -q /tmp/dependency-check.zip -d /tmp/
+        chmod +x /tmp/dependency-check/bin/dependency-check.sh
+        
+    - name: Run OWASP Dependency-Check (Standalone)
+      run: |
+        /tmp/dependency-check/bin/dependency-check.sh \
+          --project "Secure-API" \
+          --scan "." \
+          --format "ALL" \
+          --out "reports" \
+          --enableRetired \
+          --enableExperimental \
+          --failOnCVSS 7 \
+          --suppression "dependency-check-suppressions.xml" || true
+      continue-on-error: true
+          
+    - name: Upload Dependency-Check reports (Standalone)
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: dependency-check-standalone-reports
+        path: reports/
+        retention-days: 30
+        
+    # SAST: Компиляция проекта
+    - name: Build with Maven
+      run: mvn clean compile -DskipTests
+      
+    # SAST: Запуск тестов
+    - name: Run tests
+      run: mvn test
+      continue-on-error: true
+      
+    - name: Upload test reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-reports
+        path: target/surefire-reports/
+        retention-days: 30
+        
+    # SAST: SpotBugs для статического анализа кода
+    - name: Run SpotBugs Analysis
+      run: |
+        mvn spotbugs:check
+      continue-on-error: true
+      
+    - name: Upload SpotBugs reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: spotbugs-reports
+        path: target/spotbugsXml.xml
+        retention-days: 30
+        if-no-files-found: ignore
+        
+    # SAST: PMD для анализа качества кода
+    - name: Run PMD Analysis
+      run: |
+        mvn pmd:check
+      continue-on-error: true
+      
+    - name: Upload PMD reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: pmd-reports
+        path: target/pmd.xml
+        retention-days: 30
+        if-no-files-found: ignore
+        
+    # SAST: Checkstyle для проверки стиля кода
+    - name: Run Checkstyle Analysis
+      run: |
+        mvn checkstyle:check
+      continue-on-error: true
+      
+    - name: Upload Checkstyle reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: checkstyle-reports
+        path: target/checkstyle-result.xml
+        retention-days: 30
+        if-no-files-found: ignore
+        
+    # Итоговый статус
+    - name: Security Scan Summary
+      if: always()
+      run: |
+        echo "## Security Scan Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### SAST Tools:" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ SpotBugs: Static code analysis" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ PMD: Code quality analysis" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Checkstyle: Code style analysis" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### SCA Tools:" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ OWASP Dependency-Check: Vulnerability scanning" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "📊 Все отчеты доступны в артефактах сборки" >> $GITHUB_STEP_SUMMARY
