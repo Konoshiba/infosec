@@ -30,16 +30,16 @@ jobs:
         restore-keys: ${{ runner.os }}-m2
         
     - name: Run OWASP Dependency-Check with Maven
-        run: |
-          mvn org.owasp:dependency-check-maven:check \
-            -Dnvd.api.key=${{ secrets.NVD_API_KEY }} \
-            -Ddependency-check.failBuildOnCVSS=7 \
-            -Ddependency-check.enableRetired=true \
-            -Ddependency-check.enableExperimental=true \
-            -Ddependency-check.suppressionFile=dependency-check-suppressions.xml \
-            -Ddependency-check.outputDirectory=reports \
-            -Ddependency-check.formats=HTML,XML,JSON,CSV
-        continue-on-error: true
+      run: |
+        mvn org.owasp:dependency-check-maven:check \
+          -Dnvd.api.key=${{ secrets.NVD_API_KEY }} \
+          -Ddependency-check.failBuildOnCVSS=7 \
+          -Ddependency-check.enableRetired=true \
+          -Ddependency-check.enableExperimental=true \
+          -Ddependency-check.suppressionFile=dependency-check-suppressions.xml \
+          -Ddependency-check.outputDirectory=reports \
+          -Ddependency-check.formats=HTML,XML,JSON,CSV
+      continue-on-error: true
 
     - name: Upload Dependency-Check reports
       uses: actions/upload-artifact@v4
