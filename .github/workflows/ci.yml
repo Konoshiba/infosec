@@ -70,7 +70,7 @@ jobs:
     # SAST: SpotBugs для статического анализа кода
     - name: Run SpotBugs Analysis
       run: |
-        mvn -U com.github.spotbugs:spotbugs-maven-plugin:4.8.5:check -Ddependency-check.skip=true
+        mvn -U com.github.spotbugs:spotbugs-maven-plugin:4.9.8.2:check -Ddependency-check.skip=true
       continue-on-error: true
       
     - name: Upload SpotBugs reports
