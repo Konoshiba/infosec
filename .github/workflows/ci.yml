@@ -40,6 +40,8 @@ jobs:
     - name: Run OWASP Dependency-Check
       uses: dependency-check/Dependency-Check_Action@main
       continue-on-error: true
+      env:
+        DC_NVD_API_KEY: ${{ secrets.NVD_API_KEY }} # Рекомендуется задать секрет NVD_API_KEY
       with:
         project: 'infosec-api'
         path: '.'
@@ -50,6 +52,7 @@ jobs:
           --enableExperimental
           --failOnCVSS 7
           --suppression dependency-check-suppressions.xml
+          --nvdApiKey ${{ secrets.NVD_API_KEY }}
 
     - name: Upload Dependency-Check reports
       uses: actions/upload-artifact@v4
@@ -62,11 +65,11 @@ jobs:
         
     # SAST: Компиляция проекта
     - name: Build with Maven
-      run: mvn clean compile -DskipTests
+      run: mvn -U clean compile -DskipTests -Ddependency-check.skip=true
       
     # SAST: Запуск тестов
     - name: Run tests
-      run: mvn test
+      run: mvn -U test -Ddependency-check.skip=true
       continue-on-error: true
       
     - name: Upload test reports
@@ -80,7 +83,7 @@ jobs:
     # SAST: SpotBugs для статического анализа кода
     - name: Run SpotBugs Analysis
       run: |
-        mvn spotbugs:check
+        mvn -U com.github.spotbugs:spotbugs-maven-plugin:4.8.5:check -Ddependency-check.skip=true
       continue-on-error: true
       
     - name: Upload SpotBugs reports
@@ -95,7 +98,7 @@ jobs:
     # SAST: PMD для анализа качества кода
     - name: Run PMD Analysis
       run: |
-        mvn pmd:check
+        mvn -U pmd:check -Ddependency-check.skip=true
       continue-on-error: true
       
     - name: Upload PMD reports
@@ -110,7 +113,7 @@ jobs:
     # SAST: Checkstyle для проверки стиля кода
     - name: Run Checkstyle Analysis
       run: |
-        mvn checkstyle:check
+        mvn -U checkstyle:check -Ddependency-check.skip=true
       continue-on-error: true
       
     - name: Upload Checkstyle reports
